@@ -56,7 +56,7 @@ class Encoder:
 
 if __name__ == "__main__":
     from math import sin, radians
-    motor = Motor(13, 6, 27, 17, 0.5, 0.5, 1)
+    motor = Motor(13, 6, 17, 27, 0.5, 0.5, 1)
     i = 0
     divider = 10
     try:
