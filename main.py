@@ -59,8 +59,12 @@ if __name__ == "__main__":
     motor = Motor(13, 6, 27, 17, 0.5, 0.5, 1)
     i = 0
     divider = 10
-    while True:
-        speed = sin(radians(i/divider))
-        motor.set(speed)
-        print(motor.encoder.ticks, motor.encoder.speed)
-
+    try:
+        while True:
+            speed = sin(radians(i/divider))
+            motor.set(speed)
+            print(motor.encoder.ticks, motor.encoder.speed, speed)
+            i += 1
+    except KeyboardInterrupt:
+        motor.set(0)
+        motor.encoder.callback.cancel()
