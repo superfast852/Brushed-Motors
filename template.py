@@ -1,5 +1,4 @@
-from main import Motor
-from time import sleep
+from main import Motor, sleep
 motor = Motor(13, 6, 17, 27, 0.5, 0.5, 1)
 
 
@@ -17,3 +16,13 @@ def quickTest():
     sleep(1)
     print(motor.encoder.ticks)
     motor.encoder.ticks = 0
+
+
+def monitor(speed):
+    try:
+        while 1:
+            motor.set(speed)
+            print(motor.encoder.ticks, motor.encoder.speed)
+
+    except KeyboardInterrupt:
+        motor.reset()
