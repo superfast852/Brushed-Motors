@@ -1,0 +1,2 @@
+python
+from template import *
