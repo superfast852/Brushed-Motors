@@ -5,7 +5,7 @@ pi = pigpio.pi()
 
 
 def in_tolerance(a, b, tolerance=10):
-    return (b-tolerance) < a > (b+tolerance)
+    return (b-tolerance) < a < (b+tolerance)
 
 
 class Motor:
@@ -35,9 +35,9 @@ class Motor:
 
     def goTo(self, ticks, speed=0.25, tolerance=25):
         if ticks > self.encoder.ticks:
-            direction = 1
-        elif ticks < self.encoder.ticks:
             direction = -1
+        elif ticks < self.encoder.ticks:
+            direction = 1
         else:
             direction = 0
             self.encoder.ticks = ticks
