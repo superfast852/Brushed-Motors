@@ -38,13 +38,13 @@ class Motor:
             direction = 1
         elif ticks < self.encoder.ticks:
             direction = -1
-        lastDistance = abs(ticks - motor.encoder.ticks)
+        lastDistance = abs(ticks - self.encoder.ticks)
         while not in_tolerance(self.encoder.ticks, ticks, tolerance):
-            motor.set(speed)
-            if abs(ticks - motor.encoder.ticks) > lastDistance:
+            self.set(speed)
+            if abs(ticks - self.encoder.ticks) > lastDistance:
                 direction = not direction
-        motor.brake()
-        return abs(ticks-motor.encoder.ticks)
+        self.brake()
+        return abs(ticks-self.encoder.ticks)
 
     def brake(self):
         self.set(0)
@@ -73,7 +73,7 @@ class Encoder:
 
 if __name__ == "__main__":
     from math import sin, radians
-    motor = Motor(13, 6, 27, 17, 0.5, 0.5, 1)
+    motor = Motor(13, 6, 17, 27, 0.5, 0.5, 1)
     i = 0
     divider = 10
     try:
