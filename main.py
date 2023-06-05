@@ -58,7 +58,9 @@ class Motor:  # TODO: Add Sigmoid tick approach and angle-tick conversion
         self.brake()
         return abs(ticks - self.encoder.ticks)
 
-    def brake(self):
+    def brake(self, wait=0.05):
+        pi.write(self.dir, not pi.read(self.dir))
+        sleep(wait)
         self.set(0)
 
     def reset(self):
