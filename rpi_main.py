@@ -1,10 +1,10 @@
-import pigpio
+from RPi import GPIO as io
 from simple_pid import PID
-from time import sleep
+from time import sleep, time_ns
 from numpy import linspace
 
-pi = pigpio.pi()
-
+io.setmode(io.BCM)
+io.setwarnings(False)
 
 def in_tolerance(a, b, tolerance=10):
     return (b-tolerance) < a < (b+tolerance)
@@ -25,16 +25,19 @@ class Motor:  # TODO: Add Sigmoid tick approach and angle-tick conversion
     def __init__(self, pwm, dir, a, b, p, i, d):
         self.encoder = Encoder(a, b)
         self.speed = 0
-        pi.set_mode(dir, pigpio.OUTPUT)
-        pi.set_PWM_range(pwm, 100)
-        self._pwm = pwm
-        self.dir = dir
+        io.setup(dir, io.OUT)
+        io.setup(pwm, io.OUT)
+        self._pwm = io.PWM(pwm, 1000)
+        self.pwm = lambda x: self._pwm.changeDutyCycle(x)
+        self.dir = lambda x: io.output(dir, x)
+        self.current_speed = 0
         self.pid_params = (p, i, d)
         self.b = self.brake
 
     def set(self, speed):
-        pi.set_PWM_dutycycle(self._pwm, abs(speed*100))
-        pi.write(self.dir, speed > 0)
+        self.pwm(abs(speed))
+        self.dir(speed > 0)
+        self.current_speed = abs(speed)
 
     def setPosition(self, ticks):  # TODO: This brokey. Need to Fix.
         p, i, d = self.pid_params
@@ -52,7 +55,6 @@ class Motor:  # TODO: Add Sigmoid tick approach and angle-tick conversion
         elif ticks < self.encoder.ticks:
             direction = 1
         else:
-            direction = 0
             self.encoder.ticks = ticks
             return 0
         lastDistance = abs(ticks - self.encoder.ticks)
@@ -71,42 +73,42 @@ class Motor:  # TODO: Add Sigmoid tick approach and angle-tick conversion
         return abs(ticks - self.encoder.ticks)
 
     def brake(self, wait=0.05):
-        pi.write(self.dir, not pi.read(self.dir))
+        self.set(-self.current_speed)
         sleep(wait)
         self.set(0)
 
     def reset(self):
         self.brake()
-        sleep(0.5)
+        sleep(0.1)
         self.encoder.reset()
 
 
 class Encoder:
     def __init__(self, a, b):
-        self.callback = pi.callback(a, 0, self._update)
+        io.add_event_detect(a, io.RISING, callback=self._update)
+        io.setup(b, io.IN)
         self.a = a
         self.b = b
         self.ticks = 0
         self.lastTick = 0
         self.speed = 0
 
-    def _update(self, gpio, level, tick):
+    def _update(self, pin):
         if self.lastTick == 0:
-            self.lastTick = tick
+            self.lastTick = time_ns()
         else:
-            elapsed = tick-self.lastTick
-            self.lastTick = tick
+            elapsed = time_ns()-self.lastTick
+            self.lastTick = time_ns()
             self.speed = 1_000_000/elapsed
-        if pi.read(self.b):
+        if io.input(self.b):
             self.ticks += 1
         else:
             self.ticks -= 1
 
     def reset(self):
-        self.callback.cancel()
+        io.add_event_detect(self.a, io.RISING, callback=self._update)
         sleep(0.5)
         self.ticks = self.lastTick = self.speed = 0
-        self.callback = pi.callback(self.a, 0, self._update)
 
 
 if __name__ == "__main__":
