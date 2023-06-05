@@ -50,7 +50,7 @@ class Motor:  # TODO: Add Sigmoid tick approach and angle-tick conversion
                 self.encoder.ticks, distance, lastDistance+tolerance, speed*direction, self.encoder.speed))
             if distance > lastDistance+tolerance:
                 direction = -direction
-            lastDistance = distance
+            lastDistance = distance if distance < lastDistance else lastDistance
         self.brake()
         return abs(ticks - self.encoder.ticks)
 
