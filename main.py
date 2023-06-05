@@ -33,7 +33,7 @@ class Motor:
             out.append(v)
         return out
 
-    def goTo(self, ticks, speed=0.25, tolerance=25):
+    def goTo(self, ticks, speed=0.25, tolerance=5):
         if ticks > self.encoder.ticks:
             direction = -1
         elif ticks < self.encoder.ticks:
@@ -47,7 +47,7 @@ class Motor:
             self.set(speed*direction)
             distance = abs(ticks - self.encoder.ticks)
             print(self.encoder.ticks, distance, speed*direction)
-            if distance > lastDistance:
+            if distance > lastDistance+tolerance:
                 direction = -direction
             lastDistance = distance
         self.brake()
