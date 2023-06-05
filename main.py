@@ -34,7 +34,7 @@ class Motor:  # TODO: Add Sigmoid tick approach and angle-tick conversion
             out.append(v)
         return out
 
-    def goTo(self, ticks, speed=0.25, tolerance=5, frequency=10):
+    def goTo(self, ticks, speed=0.25, tolerance=5):
         if ticks > self.encoder.ticks:
             direction = -1
         elif ticks < self.encoder.ticks:
@@ -52,10 +52,9 @@ class Motor:  # TODO: Add Sigmoid tick approach and angle-tick conversion
             if distance > lastDistance+tolerance:
                 direction = -direction
                 self.set(speed*direction)
-                sleep(0.05)
+                sleep(0.1)
                 distance = lastDistance-tolerance
             lastDistance = distance if distance < lastDistance else lastDistance
-            sleep(1/10)
         self.brake()
         return abs(ticks - self.encoder.ticks)
 
