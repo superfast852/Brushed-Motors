@@ -60,8 +60,8 @@ class Motor:  # TODO: Add Sigmoid tick approach and angle-tick conversion
     def reset(self):
         self.brake()
         for i in range(1000):
-            motor.encoder.ticks = 0
-            motor.encoder.speed = 0
+            self.encoder.ticks = 0
+            self.encoder.speed = 0
 
 
 class Encoder:
@@ -87,15 +87,15 @@ class Encoder:
 
 if __name__ == "__main__":
     from math import sin, radians
-    motor = Motor(13, 6, 17, 27, 0.5, 0.5, 1)
+    mtr = Motor(13, 6, 17, 27, 0.5, 0.5, 1)
     i = 0
     divider = 10
     try:
         while True:
             speed = sin(radians(i/divider))
-            motor.set(speed)
-            print(motor.encoder.ticks, motor.encoder.speed, speed)
+            mtr.set(speed)
+            print(mtr.encoder.ticks, mtr.encoder.speed, speed)
             i += 1
     except KeyboardInterrupt:
-        motor.set(0)
-        motor.encoder.callback.cancel()
+        mtr.set(0)
+        mtr.encoder.callback.cancel()
