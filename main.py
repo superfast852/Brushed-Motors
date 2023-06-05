@@ -5,7 +5,7 @@ pi = pigpio.pi()
 
 
 def in_tolerance(a, b, tolerance=10):
-    return (b-tolerance)< a >(b+tolerance)
+    return (b-tolerance) < a > (b+tolerance)
 
 
 class Motor:
@@ -55,4 +55,12 @@ class Encoder:
 
 
 if __name__ == "__main__":
+    from math import sin, radians
     motor = Motor(13, 6, 27, 17, 0.5, 0.5, 1)
+    i = 0
+    divider = 10
+    while True:
+        speed = sin(radians(i/divider))
+        motor.set(speed)
+        print(motor.encoder.ticks, motor.encoder.speed)
+
