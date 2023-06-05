@@ -1,5 +1,6 @@
 import pigpio
 from simple_pid import PID
+from time import sleep
 
 pi = pigpio.pi()
 
@@ -33,7 +34,7 @@ class Motor:  # TODO: Add Sigmoid tick approach and angle-tick conversion
             out.append(v)
         return out
 
-    def goTo(self, ticks, speed=0.25, tolerance=5):
+    def goTo(self, ticks, speed=0.25, tolerance=5, frequency=10):
         if ticks > self.encoder.ticks:
             direction = -1
         elif ticks < self.encoder.ticks:
@@ -49,9 +50,12 @@ class Motor:  # TODO: Add Sigmoid tick approach and angle-tick conversion
             print("Ticks: {}; Distance: {}; Distance Comparison: {}; Speed Applied: {}; Encoder Speed: {}".format(
                 self.encoder.ticks, distance, lastDistance+tolerance, speed*direction, self.encoder.speed))
             if distance > lastDistance+tolerance:
+                self.brake()
+                sleep(0.05)
                 direction = -direction
-                distance = abs(ticks - self.encoder.ticks)
+                distance = lastDistance-tolerance
             lastDistance = distance if distance < lastDistance else lastDistance
+            sleep(1/10)
         self.brake()
         return abs(ticks - self.encoder.ticks)
 
