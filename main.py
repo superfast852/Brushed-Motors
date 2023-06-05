@@ -38,16 +38,20 @@ class Motor:
             direction = 1
         elif ticks < self.encoder.ticks:
             direction = -1
+        else:
+            direction = 0
+            self.encoder.ticks = ticks
+            return 0
         lastDistance = abs(ticks - self.encoder.ticks)
         while not in_tolerance(self.encoder.ticks, ticks, tolerance):
-            print(self.encoder.ticks)
-            self.set(speed)
+            self.set(speed*direction)
             distance = abs(ticks - self.encoder.ticks)
+            print(self.encoder.ticks, distance)
             if distance > lastDistance:
                 direction = not direction
             lastDistance = distance
         self.brake()
-        return abs(ticks-self.encoder.ticks)
+        return abs(ticks - self.encoder.ticks)
 
     def brake(self):
         self.set(0)
