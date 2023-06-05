@@ -8,7 +8,7 @@ def in_tolerance(a, b, tolerance=10):
     return (b-tolerance) < a < (b+tolerance)
 
 
-class Motor:
+class Motor:  # TODO: Add Sigmoid tick approach and angle-tick conversion
     def __init__(self, pwm, dir, a, b, p, i, d):
         self.encoder = Encoder(a, b)
         self.speed = 0
@@ -23,7 +23,7 @@ class Motor:
         pi.set_PWM_dutycycle(self._pwm, abs(speed*100))
         pi.write(self.dir, speed > 0)
 
-    def setPosition(self, ticks):
+    def setPosition(self, ticks):  # TODO: This brokey. Need to Fix.
         p, i, d = self.pid_params
         pid = PID(p, i, d, ticks, output_limits=(-1, 1), sample_time=0.05)
         out = []
@@ -46,7 +46,8 @@ class Motor:
         while not in_tolerance(self.encoder.ticks, ticks, tolerance):
             self.set(speed*direction)
             distance = abs(ticks - self.encoder.ticks)
-            print(self.encoder.ticks, distance, speed*direction)
+            print("Ticks: {}; Distance: {}; Distance Comparison: {}; Speed Applied: {}; Encoder Speed: {}".format(
+                self.encoder.ticks, distance, lastDistance+tolerance, speed*direction, self.encoder.speed))
             if distance > lastDistance+tolerance:
                 direction = -direction
             lastDistance = distance
@@ -55,6 +56,12 @@ class Motor:
 
     def brake(self):
         self.set(0)
+
+    def reset(self):
+        self.brake()
+        for i in range(1000):
+            motor.encoder.ticks = 0
+            motor.encoder.speed = 0
 
 
 class Encoder:
