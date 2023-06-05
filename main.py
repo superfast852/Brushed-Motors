@@ -65,14 +65,14 @@ class Motor:  # TODO: Add Sigmoid tick approach and angle-tick conversion
 
     def reset(self):
         self.brake()
-        for i in range(1000):
-            self.encoder.ticks = 0
-            self.encoder.speed = 0
+        sleep(0.5)
+        self.encoder.reset()
 
 
 class Encoder:
     def __init__(self, a, b):
         self.callback = pi.callback(a, 0, self._update)
+        self.a = a
         self.b = b
         self.ticks = 0
         self.lastTick = 0
@@ -89,6 +89,12 @@ class Encoder:
             self.ticks += 1
         else:
             self.ticks -= 1
+
+    def reset(self):
+        self.callback.cancel()
+        sleep(0.5)
+        self.ticks = self.lastTick = self.speed = 0
+        self.callback = pi.callback(self.a, 0, self._update)
 
 
 if __name__ == "__main__":
